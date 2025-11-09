@@ -1,4 +1,6 @@
-import { BrowserRouter, Link, Route, Routes, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Link, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { trackPageView } from '@portfolio/analytics'
 import type { ProjectDefinition } from './projects'
 import { findProject, projects } from './projects'
 
@@ -73,9 +75,20 @@ const ProjectDetail = () => {
   )
 }
 
+const RouteAnalytics = () => {
+  const location = useLocation()
+
+  useEffect(() => {
+    trackPageView(`${location.pathname}${location.search}`)
+  }, [location.pathname, location.search])
+
+  return null
+}
+
 const App = () => (
   <BrowserRouter>
     <div className="portfolio">
+      <RouteAnalytics />
       <aside className="portfolio__sidebar">
         <p className="portfolio__eyebrow">Projects</p>
         <h1>Product Portfolio</h1>
