@@ -1,0 +1,17 @@
+{
+  "name": "portfolio-platform",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @portfolio/portfolio-app",
+    "dev:calculator": "npm run dev --workspace @portfolio/calculator-app",
+    "build": "npm run build --workspace @portfolio/portfolio-app",
+    "build:all": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}
