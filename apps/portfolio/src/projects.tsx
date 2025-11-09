@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { CalculatorApp } from '@portfolio/calculator-widget'
+import { GameOfLife } from './projects/GameOfLife'
 
 export type ProjectDefinition = {
   slug: string
@@ -11,6 +12,15 @@ export type ProjectDefinition = {
 }
 
 export const projects: ProjectDefinition[] = [
+  {
+    slug: 'game-of-life',
+    title: "Conway's Game of Life",
+    summary:
+      'Interactive cellular automaton showcasing emergent behavior, pattern editing, and generation controls.',
+    tech: ['React', 'TypeScript', 'State Machines'],
+    status: 'live',
+    Component: GameOfLife
+  },
   {
     slug: 'calculator',
     title: 'Scientific Calculator',

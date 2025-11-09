@@ -1,13 +1,10 @@
+/// <reference types="vite/client" />
+
 type GtagCommand = [command: string, ...params: unknown[]]
 
 declare global {
   interface ImportMetaEnv {
     readonly VITE_ANALYTICS_ID?: string
-    readonly DEV?: boolean
-  }
-
-  interface ImportMeta {
-    readonly env?: ImportMetaEnv
   }
 
   interface Window {
@@ -16,7 +13,7 @@ declare global {
   }
 }
 
-const defaultMeasurementId = import.meta.env?.VITE_ANALYTICS_ID
+const defaultMeasurementId = import.meta.env.VITE_ANALYTICS_ID
 
 let isInitialized = false
 let activeMeasurementId: string | undefined
@@ -52,7 +49,7 @@ export const initAnalytics = (measurementId?: string) => {
   const resolvedId = resolveMeasurementId(measurementId)
 
   if (!resolvedId) {
-    if (import.meta.env?.DEV) {
+    if (import.meta.env.DEV) {
       console.info('Analytics disabled: missing VITE_ANALYTICS_ID.')
     }
     return
