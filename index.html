@@ -138,6 +138,24 @@
       transform: rotate(-1deg);
     }
 
+    .topbar nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .topbar nav a {
+      color: var(--text-soft);
+      border-bottom-color: transparent;
+      letter-spacing: 0.18em;
+    }
+
+    .topbar nav a:hover {
+      color: var(--text-bright);
+      border-bottom-color: var(--rust);
+    }
+
     /* ---- Hero ---- */
     .hero {
       position: relative;
@@ -538,7 +556,10 @@
     <div class="topbar">
       <span class="brand">FIELD&nbsp;NOTES</span>
       <span class="id">goodingr // Devlog Archive</span>
-      <span class="stamp">Active</span>
+      <nav aria-label="Site navigation">
+        <a href="#entries">Entries</a>
+        <a href="posts/starting-with-nothing/">Read&nbsp;01</a>
+      </nav>
     </div>
 
     <header class="hero">
@@ -565,7 +586,7 @@
       </div>
     </header>
 
-    <div class="section-head">
+    <div class="section-head" id="entries">
       <div class="section-num">§ 00 / Archive</div>
       <h2>Entries</h2>
       <p class="section-count"><strong>01</strong> entry filed &middot; more in progress</p>

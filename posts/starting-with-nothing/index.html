@@ -138,6 +138,24 @@
       transform: rotate(-1deg);
     }
 
+    .topbar nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .topbar nav a {
+      color: var(--text-soft);
+      border-bottom-color: transparent;
+      letter-spacing: 0.18em;
+    }
+
+    .topbar nav a:hover {
+      color: var(--text-bright);
+      border-bottom-color: var(--rust);
+    }
+
     /* ---- Hero ---- */
     .hero {
       position: relative;
@@ -794,10 +812,13 @@
     <div class="topbar">
       <span class="brand">FIELD&nbsp;NOTES</span>
       <span class="id">Entry&nbsp;01 / Foundations</span>
-      <span class="stamp">Unverified</span>
+      <nav aria-label="Site navigation">
+        <a href="../../">Home</a>
+        <a href="#top">Top</a>
+      </nav>
     </div>
 
-    <header class="hero">
+    <header class="hero" id="top">
       <p class="kicker">Dev Log // 01</p>
       <h1>Starting With <em>Nothing</em>.</h1>
       <p class="subtitle">
