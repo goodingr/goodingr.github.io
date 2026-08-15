@@ -3,728 +3,163 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Field Notes &mdash; goodingr</title>
-  <meta name="description" content="Devlog for a multiplayer survival prototype, plus CTF and security lab writeups from TryHackMe and Hack The Box.">
-
+  <title>goodingr &mdash; Security Writeups</title>
+  <meta name="description" content="CTF walkthroughs, lab writeups and security research across TryHackMe, Hack The Box, and self-directed home lab projects.">
   <link rel="canonical" href="https://goodingr.github.io/">
+
+  <!-- Same stylesheet the writeups archive uses, so both stay visually identical. -->
+  <link rel="stylesheet" href="/Cybersecurity-Lab-Writeups/assets/css/style.css">
+
   <style>
-    :root {
-      color-scheme: dark;
-      --bg: #07080a;
-      --bg-elev: #0d0e10;
-      --panel: #111214;
-      --panel-2: #161719;
-      --panel-3: #1c1d1f;
-      --text: #d8d6cf;
-      --text-bright: #ebe8e0;
-      --text-soft: #b8b5ac;
-      --muted: #7c7a73;
-      --muted-dim: #4f4e49;
-      --line: #232527;
-      --line-soft: #1a1b1d;
-      --line-bright: #353638;
-      --rust: #b14d2a;
-      --rust-soft: #6b3018;
-      --bone: #c9b896;
-      --max: 1080px;
-      --max-text: 720px;
-      --mono: ui-monospace, "JetBrains Mono", "Roboto Mono", Menlo, Consolas, monospace;
-      --sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --serif: "Source Serif Pro", "Iowan Old Style", Georgia, serif;
-      --condensed: "Oswald", "Bebas Neue", Impact, "Arial Narrow", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-
-    html { background: var(--bg); }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: var(--sans);
-      font-size: 17px;
-      line-height: 1.7;
-      color: var(--text);
-      background: var(--bg);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* film grain */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 100;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      opacity: 0.6;
-      mix-blend-mode: overlay;
-    }
-
-    /* vignette + atmospheric glow */
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 99;
-      background:
-        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(177, 77, 42, 0.07), transparent 70%),
-        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0, 0, 0, 0.6), transparent 60%),
-        radial-gradient(ellipse 100% 80% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.55) 100%);
-    }
-
-    a { color: var(--rust); text-decoration: none; border-bottom: 1px solid var(--rust-soft); }
-    a:hover { color: var(--text-bright); border-bottom-color: var(--rust); }
-
-    .page {
-      position: relative;
-      z-index: 2;
-      max-width: var(--max);
-      margin: 0 auto;
-      padding: 32px 28px 96px;
-    }
-
-    /* ---- Top classification bar ---- */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-      padding: 14px 18px;
-      border: 1px solid var(--line);
-      background:
-        repeating-linear-gradient(135deg,
-          transparent 0 12px,
-          rgba(177, 77, 42, 0.05) 12px 14px),
-        var(--panel);
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--muted);
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-    }
-
-    .topbar .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-bright);
-      font-weight: 600;
-      letter-spacing: 0.28em;
-    }
-
-    .topbar .brand::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      background: var(--rust);
-      box-shadow: 0 0 0 3px rgba(177, 77, 42, 0.18);
-      animation: pulse 2.4s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.55; }
-    }
-
-    .topbar .id { color: var(--muted-dim); letter-spacing: 0.2em; }
-
-    .topbar .stamp {
-      padding: 4px 10px;
-      border: 1px solid var(--rust-soft);
-      color: var(--rust);
-      font-weight: 600;
-      letter-spacing: 0.28em;
-      transform: rotate(-1deg);
-    }
-
-    .topbar nav {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .topbar nav a {
-      color: var(--text-soft);
-      border-bottom-color: transparent;
-      letter-spacing: 0.18em;
-    }
-
-    .topbar nav a:hover {
-      color: var(--text-bright);
-      border-bottom-color: var(--rust);
-    }
-
-    /* ---- Hero ---- */
-    .hero {
-      position: relative;
-      padding: 92px 0 52px;
-      border-bottom: 1px solid var(--line-bright);
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      left: -40px; right: -40px;
-      top: 36px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--rust-soft), transparent);
-      opacity: 0.5;
-    }
-
-    .kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      margin: 0 0 36px;
-      padding: 8px 22px 8px 14px;
-      border: 1px solid var(--rust-soft);
-      background: rgba(177, 77, 42, 0.08);
-      font-family: var(--mono);
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--rust);
-      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
-    }
-
-    .kicker::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      background: var(--rust);
-    }
-
-    h1 {
-      margin: 0;
-      max-width: 920px;
-      font-family: var(--condensed), var(--sans);
-      font-size: clamp(3rem, 9vw, 7rem);
-      font-weight: 700;
-      line-height: 0.92;
-      letter-spacing: -0.01em;
-      text-transform: uppercase;
-      color: var(--text-bright);
-      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
-    }
-
-    h1 em {
-      font-style: normal;
-      color: var(--rust);
-      position: relative;
-    }
-
-    h1 em::after {
-      content: "";
-      position: absolute;
-      left: 0; right: 0;
-      bottom: 0.08em;
-      height: 0.08em;
-      background: var(--rust);
-      opacity: 0.4;
-    }
-
-    .intro {
-      max-width: var(--max-text);
-      margin: 36px 0 0;
-      font-size: 1.2rem;
-      line-height: 1.6;
-      color: var(--text-soft);
-      border-left: 2px solid var(--rust);
-      padding-left: 20px;
-    }
-
-    .meta {
+    /* Featured cards, built from the slate palette so they sit natively in the theme. */
+    .featured {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0;
-      margin-top: 48px;
-      padding: 20px 0 0;
-      border-top: 1px solid var(--line);
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 18px;
+      margin: 24px 0 32px;
     }
 
-    .meta dl { margin: 0; padding: 0 24px; border-left: 1px solid var(--line); }
-    .meta dl:first-child { padding-left: 0; border-left: none; }
-
-    .meta dt {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.26em;
-      text-transform: uppercase;
-      color: var(--muted-dim);
-      margin-bottom: 6px;
+    .card {
+      border: 1px solid #dcdcdc;
+      border-left: 3px solid #0F79D0;
+      border-radius: 4px;
+      background: #fafafa;
+      padding: 18px 20px;
     }
 
-    .meta dd {
-      margin: 0;
-      font-family: var(--mono);
-      font-size: 0.92rem;
-      color: var(--text-bright);
-      letter-spacing: 0.04em;
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 20px;
     }
 
-    /* ---- Section header (Archive) ---- */
-    .section-head {
-      display: grid;
-      grid-template-columns: 96px 1fr;
-      gap: 24px;
-      align-items: end;
-      margin: 88px 0 36px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid var(--line-bright);
-      position: relative;
-    }
+    .card h3 a { text-decoration: none; }
+    .card h3 a:hover { text-decoration: underline; }
 
-    .section-head::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: -2px;
-      width: 96px;
-      height: 2px;
-      background: var(--rust);
-    }
-
-    .section-num {
-      font-family: var(--mono);
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.24em;
-      color: var(--rust);
-      text-transform: uppercase;
-      padding-bottom: 8px;
-    }
-
-    h2 {
-      margin: 0;
-      font-family: var(--condensed), var(--sans);
-      font-size: clamp(2rem, 4.4vw, 3.2rem);
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0.005em;
-      text-transform: uppercase;
-      color: var(--text-bright);
-    }
-
-    .section-count {
-      grid-column: 2;
+    .card p {
       margin: 8px 0 0;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      letter-spacing: 0.2em;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: var(--muted-dim);
+      color: #6b6b6b;
     }
 
-    .section-count strong {
-      color: var(--rust);
-      font-weight: 700;
-    }
+    .card-meta .sep { color: #bbb; padding: 0 6px; }
 
-    /* ---- Post list ---- */
-    .posts {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .post {
-      position: relative;
-      display: grid;
-      grid-template-columns: 120px 1fr auto;
-      gap: 32px;
-      align-items: start;
-      padding: 28px 28px 28px 24px;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      color: inherit;
-      border-bottom: 1px solid var(--line);
-      text-decoration: none;
-      transition: background 200ms ease, border-color 200ms ease;
-    }
-
-    .post::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--rust-soft);
-      transition: background 200ms ease;
-    }
-
-    .post:hover {
-      background: var(--panel-2);
-      border-color: var(--rust-soft);
-    }
-
-    .post:hover::before { background: var(--rust); }
-
-    .post-index {
-      font-family: var(--mono);
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      color: var(--rust);
-      text-transform: uppercase;
-      padding-top: 8px;
-    }
-
-    .post-index .num {
-      display: block;
-      font-family: var(--condensed);
-      font-size: 2.4rem;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0;
-      color: var(--text-bright);
-      margin-bottom: 6px;
-    }
-
-    .post-body h3 {
-      margin: 0 0 12px;
-      font-family: var(--condensed), var(--sans);
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-weight: 700;
-      line-height: 1.05;
-      letter-spacing: 0.005em;
-      text-transform: uppercase;
-      color: var(--text-bright);
-    }
-
-    .post-body p {
-      margin: 0 0 14px;
-      color: var(--text-soft);
-      font-size: 1rem;
-      line-height: 1.65;
-      max-width: 60ch;
-    }
-
-    .post-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .post-tag {
-      padding: 4px 10px;
-      border: 1px solid var(--line-bright);
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .post-arrow {
-      align-self: center;
-      font-family: var(--mono);
-      font-size: 1.2rem;
-      color: var(--rust);
-      letter-spacing: 0;
-      transition: transform 200ms ease;
-    }
-
-    .post:hover .post-arrow { transform: translateX(4px); }
-
-    /* ---- Stub / Coming-soon entry ---- */
-    .post-stub {
-      position: relative;
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 32px;
-      align-items: start;
-      padding: 28px 28px 28px 24px;
-      border: 1px dashed var(--line-bright);
-      background:
-        repeating-linear-gradient(135deg,
-          transparent 0 14px,
-          rgba(255, 255, 255, 0.015) 14px 16px),
-        var(--panel-2);
-      opacity: 0.85;
-    }
-
-    .post-stub::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: repeating-linear-gradient(180deg, var(--rust-soft) 0 6px, transparent 6px 12px);
-    }
-
-    .post-stub .post-index .num { color: var(--muted-dim); }
-    .post-stub .post-index { color: var(--muted-dim); }
-
-    .post-stub h3 {
-      margin: 0 0 10px;
-      font-family: var(--condensed), var(--sans);
-      font-size: 1.45rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .post-stub p {
-      margin: 0;
-      color: var(--muted-dim);
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-
-    /* ---- Cross-link card (security writeups) ---- */
-    .xlink {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 32px;
-      align-items: center;
-      padding: 32px 28px 32px 24px;
-      border: 1px solid var(--rust-soft);
-      background:
-        repeating-linear-gradient(135deg,
-          transparent 0 14px,
-          rgba(177, 77, 42, 0.04) 14px 16px),
-        var(--panel);
-      color: inherit;
-      text-decoration: none;
-      transition: background 200ms ease, border-color 200ms ease;
-    }
-
-    .xlink::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--rust);
-    }
-
-    .xlink:hover {
-      background: var(--panel-2);
-      border-color: var(--rust);
-    }
-
-    .xlink h3 {
-      margin: 0 0 12px;
-      font-family: var(--condensed), var(--sans);
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-weight: 700;
-      line-height: 1.05;
-      letter-spacing: 0.005em;
-      text-transform: uppercase;
-      color: var(--text-bright);
-    }
-
-    .xlink p {
-      margin: 0 0 14px;
-      color: var(--text-soft);
-      font-size: 1rem;
-      line-height: 1.65;
-      max-width: 60ch;
-    }
-
-    .xlink .post-arrow { align-self: center; }
-    .xlink:hover .post-arrow { transform: translateX(4px); }
-
-    /* ---- Footer ---- */
-    footer {
-      margin-top: 96px;
-      padding: 32px 0 0;
-      border-top: 2px solid var(--line-bright);
-      position: relative;
-    }
-
-    footer::before {
-      content: "";
-      position: absolute;
-      top: -2px; left: 0;
-      width: 120px;
-      height: 2px;
-      background: var(--rust);
-    }
-
-    .footer-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 24px;
-      align-items: center;
-    }
-
-    .end-stamp {
-      font-family: var(--mono);
-      font-size: 0.74rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--muted-dim);
-    }
-
-    .end-stamp strong { color: var(--rust); font-weight: 700; }
-
-    .end-mark {
+    .archive-link {
       display: inline-block;
-      width: 12px;
-      height: 12px;
-      background: var(--rust);
-      transform: rotate(45deg);
+      margin: 4px 0 8px;
+      padding: 12px 22px;
+      border-radius: 4px;
+      background: #373737;
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
     }
 
-    .footer-note {
-      max-width: 560px;
-      margin: 16px 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.65;
+    .archive-link:hover {
+      background: #0F79D0;
+      color: #fff;
+      text-decoration: none;
     }
 
-    @media (max-width: 760px) {
-      .page { padding: 16px 16px 64px; }
-      .topbar { padding: 12px 14px; gap: 8px; }
-      .topbar .stamp { font-size: 0.62rem; }
-      .hero { padding: 56px 0 36px; }
-      .meta { grid-template-columns: 1fr; gap: 16px; }
-      .meta dl { padding: 0; border-left: none; border-top: 1px solid var(--line); padding-top: 12px; }
-      .meta dl:first-child { border-top: none; padding-top: 0; }
-      .section-head {
-        grid-template-columns: 1fr;
-        gap: 8px;
-        align-items: start;
-      }
-      .section-num { padding-bottom: 0; }
-      .section-count { grid-column: 1; }
-      .post, .post-stub, .xlink {
-        grid-template-columns: 1fr;
-        gap: 16px;
-        padding: 24px 22px;
-      }
-      .post-arrow { display: none; }
-      .footer-row { grid-template-columns: 1fr; }
+    .profiles {
+      list-style: none;
+      padding-left: 0;
+      margin: 12px 0 0;
+    }
+
+    .profiles li { margin-bottom: 6px; }
+
+    @media (max-width: 720px) {
+      .featured { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <div class="topbar">
-      <span class="brand">FIELD&nbsp;NOTES</span>
-      <span class="id">goodingr</span>
-      <nav aria-label="Site navigation">
-        <a href="#entries">Devlog</a>
-        <a href="#security">Security&nbsp;Writeups</a>
-      </nav>
-    </div>
-
-    <header class="hero">
-      <p class="kicker">Devlog &amp; Security Research</p>
-      <h1>Building And <em>Breaking</em> Things.</h1>
-      <p class="intro">
-        Two working logs in one place: building a multiplayer survival game
-        from the first core systems up, and taking apart CTF machines and lab
-        environments to see how they fail. Posted as the work happens, not
-        after.
-      </p>
-      <div class="meta">
-        <dl>
-          <dt>// Building</dt>
-          <dd>Survival game prototype</dd>
-        </dl>
-        <dl>
-          <dt>// Breaking</dt>
-          <dd>TryHackMe &middot; Hack The Box</dd>
-        </dl>
-        <dl>
-          <dt>// Cadence</dt>
-          <dd>Irregular &mdash; as work lands</dd>
-        </dl>
-      </div>
+  <div id="header_wrap" class="outer">
+    <header class="inner">
+      <h1 id="project_title">goodingr</h1>
+      <h2 id="project_tagline">CTF walkthroughs, lab writeups, and security research.</h2>
     </header>
+  </div>
 
-    <div class="section-head" id="entries">
-      <div class="section-num">§ 01 / Devlog</div>
-      <h2>Recent Posts</h2>
-      <p class="section-count"><strong>01</strong> entry filed &middot; more in progress</p>
-    </div>
-
-    <section class="posts">
-      <a class="post" href="posts/starting-with-nothing/">
-        <div class="post-index">
-          <span class="num">01</span>
-          Dev Log
-        </div>
-        <div class="post-body">
-          <h3>Starting With Nothing</h3>
-          <p>
-            Building a survival game has started to feel a lot like playing one:
-            spawn in with empty hands, find the basics, get established, and
-            make enough decisions that the run becomes your own story.
-          </p>
-          <div class="post-tags">
-            <span class="post-tag">Foundations</span>
-            <span class="post-tag">Inventory</span>
-            <span class="post-tag">Multiplayer</span>
-          </div>
-        </div>
-        <span class="post-arrow">&rarr;</span>
-      </a>
-
-      <div class="post-stub">
-        <div class="post-index">
-          <span class="num">02</span>
-          Pending
-        </div>
-        <div>
-          <h3>Next entry &mdash; in development</h3>
-          <p>
-            The next post will land when the current systems milestone closes.
-            No date yet. The point of this format is to publish when the work is
-            actually ready, not on a calendar.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <div class="section-head" id="security">
-      <div class="section-num">§ 02 / Security</div>
-      <h2>Lab Writeups</h2>
-      <p class="section-count">CTF machines &middot; forensics &middot; self-hosted labs</p>
-    </div>
-
-    <section class="posts">
-      <a class="xlink" href="https://goodingr.github.io/Cybersecurity-Lab-Writeups/">
-        <div>
-          <h3>Cybersecurity Lab Writeups</h3>
-          <p>
-            Full walkthroughs of the boxes and labs I've compromised &mdash;
-            web exploitation, privilege escalation, reverse engineering, phishing
-            forensics, and a self-hosted honeypot capturing live internet-wide
-            attack traffic.
-          </p>
-          <div class="post-tags">
-            <span class="post-tag">TryHackMe</span>
-            <span class="post-tag">Hack The Box</span>
-            <span class="post-tag">Honeypot Lab</span>
-          </div>
-        </div>
-        <span class="post-arrow">&rarr;</span>
-      </a>
-    </section>
-
-    <footer>
-      <div class="footer-row">
-        <span class="end-stamp">Field Notes &mdash; <strong>goodingr</strong></span>
-        <span class="end-mark"></span>
-      </div>
-      <p class="footer-note">
-        Devlog entries and security writeups are published here as the work
-        finishes. Code and full writeup sources live on
-        <a href="https://github.com/goodingr">GitHub</a>.
+  <div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+      <p>
+        I break into intentionally vulnerable machines and lab environments, then
+        write up exactly how and why they fell &mdash; the enumeration, the chain,
+        and the underlying design flaw that made it possible. Everything here is
+        from platforms I've worked through or infrastructure I built myself.
       </p>
+
+      <h2>Featured writeups</h2>
+
+      <div class="featured">
+        <article class="card">
+          <h3><a href="/Cybersecurity-Lab-Writeups/Rooms/TryHackMe/Grand-Larceny-Auto-II/writeup.html">Grand Larceny Auto II</a></h3>
+          <div class="card-meta">TryHackMe <span class="sep">/</span> Medium <span class="sep">/</span> Reverse Engineering</div>
+          <p>
+            Decompiling a Godot game to recover a hardcoded HMAC signing key, then
+            replaying its "proof of play" API over <code>curl</code> to skip the game
+            entirely &mdash; and reaching the real flag through a privileged role the
+            client derives but never uses.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3><a href="/Cybersecurity-Lab-Writeups/Rooms/TryHackMe/Management-Wants-a-Word/writeup.html">Management Wants a Word</a></h3>
+          <div class="card-meta">TryHackMe <span class="sep">/</span> Hard <span class="sep">/</span> Forensics</div>
+          <p>
+            Recovering a Windows DPAPI master key to decrypt Chrome-saved credentials,
+            using them to unlock a hidden VeraCrypt container, and extracting a
+            steganographic payload from an image buried in a fake PDF invoice.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3><a href="/Cybersecurity-Lab-Writeups/Rooms/TryHackMe/Internal/writeup.html">Internal</a></h3>
+          <div class="card-meta">TryHackMe <span class="sep">/</span> Hard <span class="sep">/</span> Pivoting</div>
+          <p>
+            Cracking WordPress credentials for a shell, pivoting through leaked
+            credentials to a low-privileged user, then brute forcing an internal
+            Jenkins instance over an SSH tunnel to land RCE via the Script Console.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3><a href="/Cybersecurity-Lab-Writeups/Honeypot/writeup.html">Home Network Honeypot &amp; Threat Detection Lab</a></h3>
+          <div class="card-meta">Self-directed <span class="sep">/</span> Blue Team</div>
+          <p>
+            A self-hosted T-Pot honeypot on an isolated VLAN capturing live
+            internet-wide exploitation attempts &mdash; Mirai infections, DoublePulsar,
+            ActiveMQ RCE &mdash; enriched with OSINT and correlated through a custom
+            Wazuh SIEM ruleset.
+          </p>
+        </article>
+      </div>
+
+      <p>
+        <a class="archive-link" href="/Cybersecurity-Lab-Writeups/">Browse the full archive &rarr;</a>
+      </p>
+
+      <h2>Profiles</h2>
+      <ul class="profiles">
+        <li><strong>TryHackMe</strong> &mdash; <a href="https://tryhackme.com/p/bobbybojanglles">tryhackme.com/p/bobbybojanglles</a></li>
+        <li><strong>Hack The Box</strong> &mdash; <a href="https://app.hackthebox.com/users/816258">app.hackthebox.com/users/816258</a></li>
+        <li><strong>GitHub</strong> &mdash; <a href="https://github.com/goodingr">github.com/goodingr</a></li>
+      </ul>
+    </section>
+  </div>
+
+  <div id="footer_wrap" class="outer">
+    <footer class="inner">
+      <p>Maintained by <a href="https://github.com/goodingr">goodingr</a> &middot; Published with GitHub Pages</p>
     </footer>
-  </main>
+  </div>
 </body>
 </html>
