@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Field Notes &mdash; Untitled Survival Prototype</title>
+  <title>Field Notes &mdash; goodingr</title>
+  <meta name="description" content="Devlog for a multiplayer survival prototype, plus CTF and security lab writeups from TryHackMe and Hack The Box.">
+
+  <link rel="canonical" href="https://goodingr.github.io/">
   <style>
     :root {
       color-scheme: dark;
@@ -476,6 +479,60 @@
       line-height: 1.6;
     }
 
+    /* ---- Cross-link card (security writeups) ---- */
+    .xlink {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: center;
+      padding: 32px 28px 32px 24px;
+      border: 1px solid var(--rust-soft);
+      background:
+        repeating-linear-gradient(135deg,
+          transparent 0 14px,
+          rgba(177, 77, 42, 0.04) 14px 16px),
+        var(--panel);
+      color: inherit;
+      text-decoration: none;
+      transition: background 200ms ease, border-color 200ms ease;
+    }
+
+    .xlink::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--rust);
+    }
+
+    .xlink:hover {
+      background: var(--panel-2);
+      border-color: var(--rust);
+    }
+
+    .xlink h3 {
+      margin: 0 0 12px;
+      font-family: var(--condensed), var(--sans);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: 0.005em;
+      text-transform: uppercase;
+      color: var(--text-bright);
+    }
+
+    .xlink p {
+      margin: 0 0 14px;
+      color: var(--text-soft);
+      font-size: 1rem;
+      line-height: 1.65;
+      max-width: 60ch;
+    }
+
+    .xlink .post-arrow { align-self: center; }
+    .xlink:hover .post-arrow { transform: translateX(4px); }
+
     /* ---- Footer ---- */
     footer {
       margin-top: 96px;
@@ -541,7 +598,7 @@
       }
       .section-num { padding-bottom: 0; }
       .section-count { grid-column: 1; }
-      .post, .post-stub {
+      .post, .post-stub, .xlink {
         grid-template-columns: 1fr;
         gap: 16px;
         padding: 24px 22px;
@@ -555,40 +612,41 @@
   <main class="page">
     <div class="topbar">
       <span class="brand">FIELD&nbsp;NOTES</span>
-      <span class="id">goodingr // Devlog Archive</span>
+      <span class="id">goodingr</span>
       <nav aria-label="Site navigation">
-        <a href="#entries">Entries</a>
-        <a href="posts/starting-with-nothing/">Read&nbsp;01</a>
+        <a href="#entries">Devlog</a>
+        <a href="#security">Security&nbsp;Writeups</a>
       </nav>
     </div>
 
     <header class="hero">
-      <p class="kicker">Untitled Survival Prototype</p>
-      <h1>Field Notes From <em>Nothing</em>.</h1>
+      <p class="kicker">Devlog &amp; Security Research</p>
+      <h1>Building And <em>Breaking</em> Things.</h1>
       <p class="intro">
-        A working log for building a multiplayer survival game from the first
-        core systems up. Posted as the work happens, not after. The project
-        name will change later. The work is already underway.
+        Two working logs in one place: building a multiplayer survival game
+        from the first core systems up, and taking apart CTF machines and lab
+        environments to see how they fail. Posted as the work happens, not
+        after.
       </p>
       <div class="meta">
         <dl>
-          <dt>// Project</dt>
+          <dt>// Building</dt>
           <dd>Survival game prototype</dd>
         </dl>
         <dl>
-          <dt>// Cadence</dt>
-          <dd>Irregular &mdash; as systems land</dd>
+          <dt>// Breaking</dt>
+          <dd>TryHackMe &middot; Hack The Box</dd>
         </dl>
         <dl>
-          <dt>// Status</dt>
-          <dd>Early core systems</dd>
+          <dt>// Cadence</dt>
+          <dd>Irregular &mdash; as work lands</dd>
         </dl>
       </div>
     </header>
 
     <div class="section-head" id="entries">
-      <div class="section-num">§ 00 / Archive</div>
-      <h2>Entries</h2>
+      <div class="section-num">§ 01 / Devlog</div>
+      <h2>Recent Posts</h2>
       <p class="section-count"><strong>01</strong> entry filed &middot; more in progress</p>
     </div>
 
@@ -630,11 +688,42 @@
       </div>
     </section>
 
+    <div class="section-head" id="security">
+      <div class="section-num">§ 02 / Security</div>
+      <h2>Lab Writeups</h2>
+      <p class="section-count">CTF machines &middot; forensics &middot; self-hosted labs</p>
+    </div>
+
+    <section class="posts">
+      <a class="xlink" href="https://goodingr.github.io/Cybersecurity-Lab-Writeups/">
+        <div>
+          <h3>Cybersecurity Lab Writeups</h3>
+          <p>
+            Full walkthroughs of the boxes and labs I've compromised &mdash;
+            web exploitation, privilege escalation, reverse engineering, phishing
+            forensics, and a self-hosted honeypot capturing live internet-wide
+            attack traffic.
+          </p>
+          <div class="post-tags">
+            <span class="post-tag">TryHackMe</span>
+            <span class="post-tag">Hack The Box</span>
+            <span class="post-tag">Honeypot Lab</span>
+          </div>
+        </div>
+        <span class="post-arrow">&rarr;</span>
+      </a>
+    </section>
+
     <footer>
       <div class="footer-row">
-        <span class="end-stamp">Field Notes &mdash; <strong>Archive</strong></span>
+        <span class="end-stamp">Field Notes &mdash; <strong>goodingr</strong></span>
         <span class="end-mark"></span>
       </div>
+      <p class="footer-note">
+        Devlog entries and security writeups are published here as the work
+        finishes. Code and full writeup sources live on
+        <a href="https://github.com/goodingr">GitHub</a>.
+      </p>
     </footer>
   </main>
 </body>
